@@ -31,5 +31,7 @@ class DotProductAttention(nn.Module):
                 (torch.matmul(query, key) / self._sqrt_d_head) + mask
             )
 
-        return torch.matmul(scores, value)
+        attention = torch.matmul(scores, value)
+        return attention
+
 
