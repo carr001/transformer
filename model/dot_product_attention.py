@@ -16,15 +16,20 @@ class DotProductAttention(nn.Module):
         self._sqrt_d_head = sqrt(d_head)
 
 
-    def forward(self, x):
-        query = self._w_query(x)
-        key = self._w_key(x)
+    def forward(self, x_query, x_key, x_value, mask=None):
+        query = self._w_query(x_query)
+        key = self._w_key(x_key)
         key.transpose_()
-        value = self._w_value(x)
+        value = self._w_value(x_value)
 
-        scores = nn.functional.softmax(
-            torch.matmul(query, key) / self._sqrt_d_head
-        )
+        if mask is not None:
+            scores = nn.functional.softmax(
+                (torch.matmul(query, key) / self._sqrt_d_head) + mask
+            )
+        else:
+            scores = nn.functional.softmax(
+                torch.matmul(query, key) / self._sqrt_d_head
+            )
 
         return torch.matmul(scores, value)
 
