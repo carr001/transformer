@@ -24,14 +24,14 @@ class DotProductAttention(nn.Module):
 
         if mask is None:
             scores = nn.functional.softmax(
-                torch.matmul(query, key) / self._sqrt_d_head
+                torch.matmul(query, key) / self._sqrt_d_head,
+                dim=-1
             )
         else:
             scores = nn.functional.softmax(
-                (torch.matmul(query, key) / self._sqrt_d_head) + mask
+                (torch.matmul(query, key) / self._sqrt_d_head) + mask,
+                dim=-1
             )
-
+        print(scores)
         attention = torch.matmul(scores, value)
         return attention
-
-
