@@ -28,4 +28,4 @@ class PositionalEncoding(nn.Module):
     def forward(self, x):
         _, seq_len = x.size()  # batch_size, seq_len
 
-        return self.encoding[:seq_len, :]
+        return x + self.encoding[:seq_len, :]
