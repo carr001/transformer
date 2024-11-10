@@ -22,18 +22,20 @@ class EncoderLayer(nn.Module):
 
     def forward(self, x):
         residual = x
-        out = self._multi_head_attention(x_query=x, x_key=x, x_value=x)
-        out = nn.functional.dropout(out, p=self._dropout_prob, training=self.training)
-        out = out + residual
-        out = self._attention_norm(out)
+        x = self._multi_head_attention(x_query=x, x_key=x, x_value=x)
+        x = nn.functional.dropout(x, p=self._dropout_prob, training=self.training)
 
-        residual = out
-        out = self._feed_forward_network(out)
-        out = nn.functional.dropout(out, p=self._dropout_prob, training=self.training)
-        out = out + residual
-        out = self._feed_forward_norm(out)
+        x = x + residual
+        x = self._attention_norm(x)
 
-        return out
+        residual = x
+        x = self._feed_forward_network(x)
+        x = nn.functional.dropout(x, p=self._dropout_prob, training=self.training)
+
+        x = x + residual
+        x = self._feed_forward_norm(x)
+
+        return x
 
 
 class Encoder(nn.Module):
@@ -50,8 +52,8 @@ class Encoder(nn.Module):
             )
 
     def forward(self, x):
-        for layer in self._encoder_layer_list:
-            x = layer(x)
+        for encoder_layer in self._encoder_layer_list:
+            x = encoder_layer(x)
         return x
 
 
