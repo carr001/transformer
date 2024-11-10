@@ -49,24 +49,24 @@ class DecoderLayer(nn.Module):
         return decoder_x
 
 
-    class Decoder(nn.Module):
+class Decoder(nn.Module):
 
-        def __init__(
-            self, layers_amount, d_model, attention_d_head, ffn_d_hidden, dropout_prob, max_len, device, dtype,
-            encoder_mask=None
-        ):
-            super().__init__()
-            self._decoder_layer_list = nn.ModuleList()
+    def __init__(
+        self, layers_amount, d_model, attention_d_head, ffn_d_hidden, dropout_prob, max_len, device, dtype,
+        encoder_mask=None
+    ):
+        super().__init__()
+        self._decoder_layer_list = nn.ModuleList()
 
-            for _ in range(layers_amount):
-                self._decoder_layer_list.append(
-                    DecoderLayer(
-                        d_model, attention_d_head, ffn_d_hidden, dropout_prob, max_len, device, dtype, encoder_mask
-                    )
+        for _ in range(layers_amount):
+            self._decoder_layer_list.append(
+                DecoderLayer(
+                    d_model, attention_d_head, ffn_d_hidden, dropout_prob, max_len, device, dtype, encoder_mask
                 )
+            )
 
-        def forward(self, decoder_x, encoder_output):
-            for decoder_layer in self._decoder_layer_list:
-                decoder_x = decoder_layer(decoder_x, encoder_output)
-            return decoder_x
+    def forward(self, decoder_x, encoder_output):
+        for decoder_layer in self._decoder_layer_list:
+            decoder_x = decoder_layer(decoder_x, encoder_output)
+        return decoder_x
 
