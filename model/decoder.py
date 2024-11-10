@@ -28,7 +28,7 @@ class DecoderLayer(nn.Module):
     def forward(self, decoder_x, encoder_output):
         residual = decoder_x
         decoder_x = self._masked_self_attention(x_query=decoder_x, x_key=decoder_x, x_value=decoder_x)
-        decoder_x = nn.functional.dropout(decoder_x, p=self._dropout_prob, training=self._training)
+        decoder_x = nn.functional.dropout(decoder_x, p=self._dropout_prob, training=self.training)
 
         decoder_x = decoder_x + residual
         decoder_x = self._self_attention_norm(decoder_x)
