@@ -32,6 +32,6 @@ class DotProductAttention(nn.Module):
                 (torch.matmul(query, key) / self._sqrt_d_head) + mask,
                 dim=-1
             )  # Softmax along rows - softmax along scores for every token of query (sum of scores for query token = 1)
-        print(scores)
+
         attention = torch.matmul(scores, value)
         return attention
