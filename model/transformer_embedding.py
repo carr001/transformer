@@ -18,7 +18,7 @@ class TransformerEmbedding(nn.Module):
 
     def forward(self, x):
         token_embedding = self._token_embedding(x)
-        positional_encoding = self._positional_encoding(x)
+        positional_encoding = self._positional_encoding(token_embedding)
         x = token_embedding + positional_encoding
         x = nn.functional.dropout(x, p=self._dropout_prob, training=self.training)
         return x
