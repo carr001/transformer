@@ -1,7 +1,6 @@
 # Author: Vodohleb04
 import torch
 from torch import nn
-from torch.nn.functional import leaky_relu
 
 
 class FeedForwardNetwork(nn.Module):
@@ -16,7 +15,7 @@ class FeedForwardNetwork(nn.Module):
 
     def forward(self, x):
         output = self._linear1(x)
-        nn.functional.relu_(output)
+        # nn.functional.relu_(output)
         nn.functional.leaky_relu_(output, negative_slope=0.03)
         output = self._linear2(output)
         return output
