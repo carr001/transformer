@@ -14,7 +14,7 @@ class PositionalEncoding(nn.Module):
 
         super().__init__()
 
-        self.encoding = torch.zeros(max_len, d_model, device=device, dtype=dtype)  # [max_batch_size, 512]
+        self.encoding = torch.zeros(max_len, d_model, device=device, dtype=dtype)  # [max_sequence_len, 512]
         self.encoding.requires_grad = False
 
         pos = torch.arange(0, max_len, device=device, dtype=dtype)
@@ -28,4 +28,4 @@ class PositionalEncoding(nn.Module):
     def forward(self, x):
         seq_len = x.shape[-2]  # [batch_size, seq_len, d_model] or [seq_len, d_model]. So, -2 is always seq_len
 
-        return x + self.encoding[:seq_len, :]
+        return self.encoding[:seq_len, :]
