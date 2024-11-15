@@ -1,8 +1,8 @@
 #Author: Vodohleb04
 from torch import nn
 
-from multi_head_attention import MultiHeadAttention
-from feed_forward_network import FeedForwardNetwork
+from model.multi_head_attention import MultiHeadAttention
+from model.feed_forward_network import FeedForwardNetwork
 
 
 class DecoderLayer(nn.Module):
