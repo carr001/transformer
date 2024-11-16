@@ -6,13 +6,7 @@ from model.dot_product_attention import DotProductAttention
 
 class MultiHeadAttention(nn.Module):
 
-    def _make_mask(self, max_len, device, dtype):
-        self._mask = torch.zeros((max_len, max_len), device=device, dtype=dtype, requires_grad=False)
-        for i in range(max_len):
-            self._mask[i, i+1:] = -torch.inf
-
-
-    def __init__(self, d_model, d_head, max_len, device, dtype, masked=False, custom_mask=None):
+    def __init__(self, d_model, d_head, device, dtype):
         if d_head > d_model:
             raise ValueError(f"Expected d_head be less than d_model")
         if d_model % d_head != 0:
@@ -25,20 +19,14 @@ class MultiHeadAttention(nn.Module):
             [DotProductAttention(d_model, d_head, device, dtype) for _ in range(heads_amount)]
         )
 
-        if masked and custom_mask is None:
-            self._make_mask(max_len, device, dtype)
-        elif custom_mask is not None:
-            self._mask = custom_mask
-        else:
-            self._mask = None
-
         self._w0 = nn.Linear(d_model, d_model, bias=False, device=device, dtype=dtype)  # concat_heads * w0
 
 
-    def forward(self, x_query, x_key, x_value):
+    def forward(self, x_query, x_key, x_value, mask=None):
         head_result_list = [None for _ in range(len(self._attention_head_list))]
+
         for i, attention_head in enumerate(self._attention_head_list):
-            head_result_list[i] = attention_head(x_query, x_key, x_value, mask=self._mask)
+            head_result_list[i] = attention_head(x_query, x_key, x_value, mask=mask)
         concat_heads = torch.concat(head_result_list, dim=-1)  # heads of corresponding examples from batch are concatenated
         # (head11 + head12 + head13), (head21 + head22 + head23), ...
 

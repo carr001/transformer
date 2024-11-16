@@ -29,12 +29,11 @@ class DotProductAttention(nn.Module):
             )  # Softmax along rows - softmax along scores for every token of query (sum of scores for query token = 1)
         else:
             scores = nn.functional.softmax(
-                (torch.matmul(query, key_transposed) / self._sqrt_d_head) + mask[:query.shape[-2], :key_transposed.shape[-1]],
+                (torch.matmul(query, key_transposed) / self._sqrt_d_head) + mask,
                 dim=-1
             )  # Softmax along rows - softmax along scores for every token of query (sum of scores for query token = 1)
 
         attention = torch.matmul(scores, value)
         return attention
 
-    # query.shape[-2] is the amount of query tokens, key_transposed.shape[-1] is the amount of key tokens
-    # (in both batch and one-example inputs)
+
