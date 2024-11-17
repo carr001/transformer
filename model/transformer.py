@@ -16,6 +16,7 @@ class Transformer(nn.Module):
         device, dtype, encoder_padding_index=None, decoder_padding_index=None
     ):
         super().__init__()
+
         self._encoder_embedding = TransformerEmbedding(
             encoder_vocab_size, d_model, max_len, dropout_prob, device, dtype, encoder_padding_index
         )
@@ -32,12 +33,51 @@ class Transformer(nn.Module):
 
         self._output_linear = nn.Linear(d_model, decoder_vocab_size, bias=True, device=device, dtype=dtype)
         nn.init.xavier_normal_(self._output_linear.weight)
+
+        self.encoder_padding_id = encoder_padding_index
+        self.decoder_padding_id = decoder_padding_index
         self._device = device
+        self._dtype = dtype
         self._max_len = max_len
 
 
+    @staticmethod
+    def _make_padding_mask_on_one_sequence(sequence_tokens, padding_id, device, dtype):
+        sequence_len = sequence_tokens.shape[0]
+        mask = torch.zeros((sequence_len, sequence_len), dtype=dtype, device=device)  # mask is square matrix len x len
+
+        padding_start = sequence_len - 1  # <eos> token. If there is no padding - nothing will be masked
+        for i in range(sequence_len):
+            if sequence_tokens[i] == padding_id:
+                padding_start = i
+                break
+        mask[:, padding_start : sequence_len - 1] = -torch.inf
+        return mask
+
+
+    @staticmethod
+    def make_padding_mask(sequence_tokens, padding_id, device, dtype):
+        if len(sequence_tokens.shape) == 1:
+            return Transformer._make_padding_mask_on_one_sequence(sequence_tokens, padding_id, device, dtype)
+        elif len(sequence_tokens.shape) == 2:
+            batch_size = sequence_tokens.shape[0]
+            seq_len = sequence_tokens.shape[1]  # all sequences in batch has the same size (because of torch)
+            mask = torch.zeros((batch_size, seq_len, seq_len), device=device, dtype=dtype)
+            for sequence_idx in range(batch_size):
+                mask[sequence_idx] = Transformer._make_padding_mask_on_one_sequence(
+                    sequence_tokens[sequence_idx], padding_id, device, dtype
+                )
+            return mask
+        else:
+            raise ValueError(f"Unexpected shape of sequence_tokens. Expected sequence_tokens to be a"
+                             f" tensor of shape (num_tokens) or (batch_size, num_tokens)")
+
+
     def forward(self, input_sequence, output_sequence, encoder_padding_mask=None, decoder_padding_mask=None):
-        # TODO check sequences for padding and make masks if no masks where provided
+        if encoder_padding_mask is None and self.encoder_padding_id is not None:
+            encoder_padding_mask = self.make_padding_mask(input_sequence, self.encoder_padding_id, self._device, self._dtype)
+        if decoder_padding_mask is None and self.decoder_padding_id is not None:
+            decoder_padding_mask = self.make_padding_mask(output_sequence, self.decoder_padding_id, self._device, self._dtype)
 
         encoder_x = self._encoder_embedding(input_sequence)
         decoder_x = self._decoder_embedding(output_sequence)
@@ -60,6 +100,8 @@ class Transformer(nn.Module):
 
     def generate(self, input_sequence, bos_token_id, eos_token_id, encoder_padding_mask=None):
         with torch.no_grad():
+            if encoder_padding_mask is None  and self.encoder_padding_id is not None:
+                encoder_padding_mask = self._make_padding_mask_on_one_sequence(input_sequence, self.encoder_padding_id, self._device, self._dtype)
             # Takes one-example input (not a batch)
             output_sequence = torch.as_tensor([bos_token_id], device=self._device)
             encoder_x = self._encoder_embedding(input_sequence)
