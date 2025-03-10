@@ -88,9 +88,9 @@ class MultiHeadAttention(nn.Module):
             # Same mask applied to all h heads.
             mask = mask.unsqueeze(-3)
 
-        if len(query_x.shape) == 3:
+        if len(query_x.shape) == 2:
             return self._no_batch_forward(query_x, key_x, value_x, dropout_p, mask)
-        elif len(query_x.shape) == 4:
+        elif len(query_x.shape) == 3:
             return self._batch_forward(query_x, key_x, value_x, dropout_p, mask)
 
 
