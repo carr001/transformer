@@ -20,7 +20,7 @@ class MultiHeadAttention(nn.Module):
 
 
     def dot_product_attention(self, query, key, value, dropout_p=0, mask=None):
-        scores = torch.matmul(query, key.transpose(-2, -1)) / self._sqrt_key_d
+        scores = torch.matmul(query, key.transpose(-2, -1)) / 1 #self._sqrt_key_d
         if mask is not None:
             scores += mask
 
@@ -101,7 +101,7 @@ class MultiHeadAttention(nn.Module):
 
 
 if __name__ == "__main__":
-    device = torch.device("cuda")
+    device = torch.device("cpu")
     dtype = torch.float32
     x = torch.as_tensor(
         [

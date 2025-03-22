@@ -88,7 +88,7 @@ def reform_dataset(
 def define_device():
     if torch.cuda.is_available():
         print("Running on GPU")
-        return torch.device("cuda")
+        return torch.device("cpu")
     else:
         print("Running on  CPU")
         return torch.device("cpu")

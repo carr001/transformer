@@ -145,7 +145,7 @@ if __name__ == "__main__":
                 0,
                 0
             ]
-        ], device=torch.device("cuda")
+        ], device=torch.device("cpu")
     )
     d_x = torch.as_tensor(
         [
@@ -162,25 +162,25 @@ if __name__ == "__main__":
              0,
              0]
         ],
-        device=torch.device("cuda")
+        device=torch.device("cpu")
     )
-    enc_pad_mask = torch.zeros((3, 3, 3), device=torch.device("cuda"))
+    enc_pad_mask = torch.zeros((3, 3, 3), device=torch.device("cpu"))
     enc_pad_mask[1, :, 2:] = -torch.inf
     enc_pad_mask[2, :, 1:] = -torch.inf
 
-    dec_pad_mask = torch.zeros((3, 4, 4), device=torch.device("cuda"))
+    dec_pad_mask = torch.zeros((3, 4, 4), device=torch.device("cpu"))
     dec_pad_mask[1, :, 3:] = -torch.inf
     dec_pad_mask[2, :, 2:] = -torch.inf
 
     transformer = Transformer(
         2, 2, 21, 7, 6, 2, 12, 0.1, 30,
-        torch.device("cuda"), torch.float32
+        torch.device("cpu"), torch.float32
     )
 
     #value = nn.functional.softmax(transformer(e_x, d_x, enc_pad_mask, dec_pad_mask), dim=-1)
     # print(value)
-    input_tokens = torch.as_tensor([3, 5, 2, 0], device = torch.device("cuda"))
-    enc_pad_mask = torch.zeros((4, 4), device=torch.device("cuda"))
+    input_tokens = torch.as_tensor([3, 5, 2, 0], device = torch.device("cpu"))
+    enc_pad_mask = torch.zeros((4, 4), device=torch.device("cpu"))
     enc_pad_mask[:, 3] = -torch.inf
 
     print("generating...")

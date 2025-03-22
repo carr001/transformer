@@ -25,7 +25,7 @@ class DecoderLayer(nn.Module):
     def forward(self, decoder_x, encoder_output, self_attention_mask, encoder_decoder_mask=None):
         residual = decoder_x
         decoder_x = self._masked_self_attention(
-            x_query=decoder_x, x_key=decoder_x, x_value=decoder_x, mask=self_attention_mask
+            query_x=decoder_x, key_x=decoder_x, value_x=decoder_x, mask=self_attention_mask
         )
         decoder_x = nn.functional.dropout(decoder_x, p=self._dropout_prob, training=self.training)
 
@@ -34,7 +34,7 @@ class DecoderLayer(nn.Module):
 
         residual = decoder_x
         decoder_x = self._encoder_decoder_attention(
-            x_query=decoder_x, x_key=encoder_output, x_value=encoder_output, mask=encoder_decoder_mask
+            query_x=decoder_x, key_x=encoder_output, value_x=encoder_output, mask=encoder_decoder_mask
         )
         decoder_x = nn.functional.dropout(decoder_x, p=self._dropout_prob, training=self.training)
 

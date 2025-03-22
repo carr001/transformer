@@ -20,7 +20,7 @@ class EncoderLayer(nn.Module):
 
     def forward(self, x, padding_mask=None):
         residual = x
-        x = self._multi_head_attention(x_query=x, x_key=x, x_value=x, mask=padding_mask)
+        x = self._multi_head_attention(query_x=x, key_x=x, value_x=x, mask=padding_mask)
         x = nn.functional.dropout(x, p=self._dropout_prob, training=self.training)
 
         x = x + residual
@@ -55,7 +55,7 @@ class Encoder(nn.Module):
 
 
 if __name__ == "__main__":
-    enc_l = EncoderLayer(6, 2, 12, 0.1, 3, torch.device("cuda"), torch.float32)
+    enc_l = EncoderLayer(6, 2, 12, 0.1, 3, torch.device("cpu"), torch.float32)
 
     x = torch.as_tensor(
         [
@@ -69,9 +69,9 @@ if __name__ == "__main__":
                 [11., 11., 11., 11., 11., 11.],
                 [12., 12., 12., 12., 12., 12.]
             ]
-        ], device=torch.device("cuda")
+        ], device=torch.device("cpu")
     )
-    mask = torch.zeros((2, 3, 3), device=torch.device("cuda"))
+    mask = torch.zeros((2, 3, 3), device=torch.device("cpu"))
     mask[0, :, 2] = -torch.inf  # the last token is pad in the first sequence
     mask[1, :, 1:] = -torch.inf  # the last two tokens are pad in the second sequence
 
